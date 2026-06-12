@@ -1,0 +1,1085 @@
+<!doctype html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>杂志风博客（线框）— 首页</title>
+  <meta name="description" content="杂志风博客首页线框原型：信息架构、模块与交互优先。" />
+  <style>
+    :root{
+      /* Editorial — Monocle / FT magazine (direction binding, verbatim core tokens) */
+      --bg:      oklch(98% 0.004 95);
+      --surface: oklch(100% 0.002 95);
+      --fg:      oklch(20% 0.018 70);
+      --muted:   oklch(48% 0.012 70);
+      --border:  oklch(90% 0.006 95);
+      --accent:  oklch(52% 0.10 28);
+      --font-display: 'Iowan Old Style', 'Charter', Georgia, serif;
+      --font-body:    -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+
+      /* Product-needed extensions (derived, restrained) */
+      --accent-2: oklch(58% 0.07 235);
+      --success:  oklch(62% 0.12 150);
+      --warn:     oklch(70% 0.14 85);
+      --danger:   oklch(56% 0.16 25);
+
+      --radius: 2px;
+      --radius-sm: 2px;
+      --shadow: none;
+
+      --grid: 12;
+      --gutter: clamp(16px, 2.2vw, 24px);
+      --content: min(1100px, calc(100vw - var(--gutter) * 2));
+
+      --step--1: clamp(12px, 1.2vw, 13px);
+      --step-0:  clamp(14px, 1.35vw, 15px);
+      --step-1:  clamp(16px, 1.55vw, 18px);
+      --step-2:  clamp(20px, 2.2vw, 24px);
+      --step-3:  clamp(28px, 3.4vw, 40px);
+      --step-4:  clamp(36px, 4.8vw, 56px);
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--fg);
+      font: 400 var(--step-0)/1.45 var(--font-body);
+      letter-spacing: 0.01em;
+      text-rendering: geometricPrecision;
+    }
+
+    a{color:inherit}
+    :focus-visible{
+      outline: 3px solid color-mix(in oklch, var(--accent) 60%, white);
+      outline-offset: 2px;
+    }
+
+    .skip{
+      position:absolute; left:-999px; top:auto;
+      width:1px; height:1px; overflow:hidden;
+    }
+    .skip:focus{
+      left: var(--gutter); top: 10px;
+      width:auto; height:auto; padding:10px 12px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      z-index: 1000;
+    }
+
+    .shell{min-height:100%; display:flex; flex-direction:column}
+    .wrap{width:var(--content); margin:0 auto}
+
+    header.site{
+      position:sticky; top:0; z-index:50;
+      background: color-mix(in oklch, var(--bg) 96%, white);
+      border-bottom: 1px solid var(--border);
+    }
+    .topbar{
+      display:grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items:center;
+      gap: 12px;
+      padding: 14px 0;
+    }
+    .brand{
+      display:flex; gap: 12px; align-items:baseline;
+      min-width: 0;
+    }
+    .brand .mast{
+      font-family: var(--font-display);
+      font-size: var(--step-2);
+      line-height: 1.05;
+      letter-spacing: -0.01em;
+      white-space: nowrap;
+    }
+    .brand .tagline{
+      color: var(--muted);
+      font-size: var(--step--1);
+      overflow:hidden; text-overflow: ellipsis; white-space: nowrap;
+      border-left: 1px solid var(--border);
+      padding-left: 12px;
+    }
+    nav.primary{
+      display:flex;
+      justify-content:center;
+      gap: 14px;
+      align-items:center;
+      font-size: var(--step--1);
+    }
+    .navlink{
+      text-decoration:none;
+      padding: 8px 10px;
+      border-radius: var(--radius-sm);
+      border: 1px solid transparent;
+      color: color-mix(in oklch, var(--fg) 84%, var(--muted));
+    }
+    .navlink[aria-current="page"]{
+      border-color: var(--border);
+      background: color-mix(in oklch, var(--surface) 70%, var(--bg));
+      color: var(--fg);
+    }
+    .right{
+      display:flex;
+      justify-content:flex-end;
+      gap: 10px;
+      align-items:center;
+    }
+
+    .pill{
+      display:inline-flex; align-items:center; gap:8px;
+      padding: 9px 10px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--surface);
+      min-width: 0;
+    }
+    .pill input{
+      border:0; outline:none;
+      background: transparent;
+      font: inherit;
+      width: min(280px, 34vw);
+      min-width: 120px;
+    }
+    .pill input::placeholder{color: color-mix(in oklch, var(--muted) 75%, white)}
+    .pill .kbd{
+      font-size: 11px;
+      color: var(--muted);
+      border: 1px solid var(--border);
+      border-bottom-color: color-mix(in oklch, var(--border) 70%, var(--fg));
+      padding: 2px 6px;
+      border-radius: 6px;
+      white-space: nowrap;
+    }
+    .iconbtn{
+      display:inline-flex; align-items:center; justify-content:center;
+      width: 40px; height: 40px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      background: var(--surface);
+      cursor:pointer;
+    }
+    .iconbtn[aria-pressed="true"]{
+      border-color: var(--fg);
+      background: color-mix(in oklch, var(--bg) 70%, var(--surface));
+    }
+
+    main{flex:1; padding: 26px 0 60px}
+
+    .kicker{
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1.45fr 0.85fr;
+      gap: 18px;
+      align-items:start;
+    }
+
+    .panel{
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px;
+    }
+    .panel.tight{padding: 14px}
+    .panel.flat{
+      background: transparent;
+      border-color: transparent;
+      padding: 0;
+    }
+
+    .hero{
+      display:grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 16px;
+      align-items:stretch;
+    }
+    .ph{
+      background: color-mix(in oklch, var(--bg) 55%, var(--surface));
+      border: 1px dashed color-mix(in oklch, var(--border) 65%, var(--muted));
+      border-radius: var(--radius-sm);
+      min-height: 220px;
+      position:relative;
+      overflow:hidden;
+    }
+    .ph::after{
+      content:"封面图占位";
+      position:absolute; inset:auto 12px 12px 12px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .hgroup{
+      display:flex;
+      flex-direction:column;
+      gap: 10px;
+      min-width:0;
+    }
+    .headline{
+      font-family: var(--font-display);
+      font-size: var(--step-4);
+      line-height: 1.02;
+      letter-spacing: -0.02em;
+      margin: 4px 0 0;
+      text-wrap: pretty;
+    }
+    .dek{
+      margin:0;
+      color: color-mix(in oklch, var(--fg) 88%, var(--muted));
+      font-size: var(--step-1);
+      line-height: 1.4;
+      text-wrap: pretty;
+    }
+    .meta{
+      display:flex; flex-wrap:wrap; gap: 10px;
+      align-items:center;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .dot{width:4px; height:4px; border-radius:999px; background: var(--border)}
+    .badge{
+      display:inline-flex; align-items:center; gap:8px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 6px 10px;
+      font-size: 12px;
+      background: color-mix(in oklch, var(--surface) 70%, var(--bg));
+    }
+    .badge .sw{
+      width:10px; height:10px; border-radius:999px;
+      background: var(--border);
+    }
+    .ctaRow{display:flex; gap:10px; align-items:center; margin-top: 8px; flex-wrap:wrap}
+    .btn{
+      appearance:none;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+      font: 600 13px/1 var(--font-body);
+      letter-spacing: 0.01em;
+      cursor:pointer;
+    }
+    .btn.primary{
+      border-color: color-mix(in oklch, var(--accent) 60%, var(--border));
+      background: color-mix(in oklch, var(--accent) 14%, var(--surface));
+    }
+    .btn.ghost{
+      background: transparent;
+    }
+    .btn:active{transform: translateY(1px)}
+
+    .sectionTitle{
+      display:flex; justify-content:space-between; align-items:baseline;
+      gap: 12px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 12px;
+    }
+    .sectionTitle h2{
+      margin:0;
+      font-family: var(--font-display);
+      font-size: var(--step-2);
+      letter-spacing: -0.01em;
+    }
+    .sectionTitle .hint{
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .chipRow{display:flex; flex-wrap:wrap; gap: 8px}
+    .chip{
+      appearance:none;
+      border: 1px solid var(--border);
+      background: color-mix(in oklch, var(--surface) 80%, var(--bg));
+      border-radius: var(--radius-sm);
+      padding: 7px 10px;
+      font: 600 12px/1 var(--font-body);
+      color: color-mix(in oklch, var(--fg) 86%, var(--muted));
+      cursor:pointer;
+    }
+    .chip[aria-pressed="true"]{
+      border-color: color-mix(in oklch, var(--accent) 65%, var(--border));
+      background: color-mix(in oklch, var(--accent) 12%, var(--surface));
+      color: var(--fg);
+    }
+
+    .toolbar{
+      display:flex; flex-wrap:wrap; gap: 10px;
+      align-items:center; justify-content:space-between;
+      margin: 12px 0 12px;
+    }
+    .seg{
+      display:inline-flex;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      overflow:hidden;
+      background: var(--surface);
+    }
+    .seg button{
+      border:0;
+      background: transparent;
+      padding: 9px 12px;
+      font: 700 12px/1 var(--font-body);
+      letter-spacing: 0.02em;
+      color: var(--muted);
+      cursor:pointer;
+    }
+    .seg button[aria-pressed="true"]{
+      color: var(--fg);
+      background: color-mix(in oklch, var(--bg) 65%, var(--surface));
+    }
+    .select{
+      display:inline-flex; align-items:center; gap:10px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 8px 12px;
+      background: var(--surface);
+      font-size: 12px;
+      color: var(--muted);
+    }
+    select{
+      border:0; background: transparent; font: inherit; color: var(--fg);
+      outline:none;
+    }
+
+    .feed{display:flex; flex-direction:column; gap: 10px}
+    article.card{
+      display:grid;
+      grid-template-columns: 140px 1fr;
+      gap: 14px;
+      align-items:start;
+      padding: 14px;
+      border-radius: var(--radius);
+      background: var(--surface);
+      border: 1px solid var(--border);
+    }
+    .thumb{
+      width: 140px; height: 92px;
+      border-radius: var(--radius-sm);
+      border: 1px dashed color-mix(in oklch, var(--border) 70%, var(--muted));
+      background: color-mix(in oklch, var(--bg) 55%, var(--surface));
+      position:relative;
+    }
+    .thumb::after{
+      content:"缩略图";
+      position:absolute; inset:auto 10px 10px 10px;
+      font-size: 11px;
+      color: var(--muted);
+    }
+    .card h3{
+      margin: 0;
+      font: 700 var(--step-1)/1.15 var(--font-body);
+      letter-spacing: -0.01em;
+      text-wrap: pretty;
+    }
+    .excerpt{
+      margin: 8px 0 10px;
+      color: color-mix(in oklch, var(--fg) 86%, var(--muted));
+      font-size: 13px;
+      line-height: 1.45;
+    }
+    .row{
+      display:flex;
+      flex-wrap:wrap;
+      gap: 10px;
+      align-items:center;
+      justify-content:space-between;
+    }
+    .row .leftMeta{
+      display:flex; flex-wrap:wrap; gap:10px; align-items:center;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .actions{display:flex; gap:8px; align-items:center}
+    .mini{
+      appearance:none;
+      border: 1px solid var(--border);
+      background: transparent;
+      border-radius: var(--radius-sm);
+      padding: 7px 10px;
+      font: 700 11px/1 var(--font-body);
+      color: var(--muted);
+      cursor:pointer;
+    }
+    .mini[aria-pressed="true"]{
+      color: var(--fg);
+      border-color: color-mix(in oklch, var(--accent-2) 60%, var(--border));
+      background: color-mix(in oklch, var(--accent-2) 10%, var(--surface));
+    }
+    .mini.save[aria-pressed="true"]{
+      border-color: color-mix(in oklch, var(--accent) 65%, var(--border));
+      background: color-mix(in oklch, var(--accent) 12%, var(--surface));
+    }
+
+    .mutedLine{
+      margin: 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .list{
+      display:flex; flex-direction:column; gap: 10px;
+    }
+    .li{
+      display:grid; grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items:baseline;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .li:last-child{border-bottom:0}
+    .li a{
+      text-decoration:none;
+    }
+    .li a:hover{text-decoration:underline}
+    .li small{color: var(--muted)}
+
+    .formRow{display:flex; gap:10px; align-items:stretch; margin-top: 10px; flex-wrap:wrap}
+    .field{
+      flex: 1 1 260px;
+      display:flex; gap:10px; align-items:center;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--surface);
+      padding: 10px 12px;
+    }
+    .field input{
+      border:0; outline:none; background: transparent;
+      font: inherit;
+      width: 100%;
+      min-width: 140px;
+    }
+    .field input::placeholder{color: color-mix(in oklch, var(--muted) 75%, white)}
+    .toast{
+      position: fixed;
+      left: 50%;
+      bottom: 16px;
+      transform: translateX(-50%);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 10px 12px;
+      color: var(--fg);
+      font-size: 12px;
+      display:none;
+      z-index: 100;
+      max-width: min(92vw, 720px);
+    }
+    .toast.show{display:flex; gap:10px; align-items:center}
+    .dotStatus{width:10px; height:10px; border-radius:999px; background: var(--accent-2)}
+    .dotStatus.warn{background: var(--warn)}
+    .dotStatus.ok{background: var(--success)}
+    .dotStatus.bad{background: var(--danger)}
+
+    footer{
+      padding: 26px 0 38px;
+      border-top: 1px solid var(--border);
+      background: color-mix(in oklch, var(--bg) 92%, white);
+    }
+    .footGrid{
+      display:grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 18px;
+      align-items:start;
+    }
+    .footNote{
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    /* Responsive */
+    @media (max-width: 980px){
+      .grid{grid-template-columns: 1fr}
+      .hero{grid-template-columns: 1fr}
+      .thumb{width: 120px}
+      article.card{grid-template-columns: 120px 1fr}
+      .topbar{grid-template-columns: 1fr auto}
+      nav.primary{display:none}
+      .brand .tagline{display:none}
+    }
+    @media (max-width: 540px){
+      .pill input{width: 36vw}
+      .right{gap: 8px}
+      .iconbtn{width: 38px; height: 38px}
+      article.card{grid-template-columns: 1fr}
+      .thumb{width: 100%; height: 140px}
+      .headline{font-size: clamp(34px, 9vw, 46px)}
+      .ctaRow .btn{width: 100%}
+      .toolbar{gap: 12px}
+    }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#content">跳到内容</a>
+  <div class="shell">
+    <header class="site" role="banner">
+      <div class="wrap">
+        <div class="topbar" aria-label="站点头部">
+          <div class="brand" aria-label="品牌">
+            <div class="mast">小刊 · Blog</div>
+            <div class="tagline">编辑感结构线框（可替换品牌名与栏目）</div>
+          </div>
+          <nav class="primary" aria-label="主导航">
+            <a class="navlink" href="#" aria-current="page">首页</a>
+            <a class="navlink" href="#">专题</a>
+            <a class="navlink" href="#">通讯</a>
+            <a class="navlink" href="#">关于</a>
+          </nav>
+          <div class="right" aria-label="搜索与动作">
+            <form class="pill" id="searchForm" role="search" aria-label="站内搜索">
+              <span aria-hidden="true" style="color:var(--muted); font-size:12px;">搜索</span>
+              <input id="q" name="q" type="search" placeholder="标题 / 关键词…" autocomplete="off" />
+              <span class="kbd" aria-hidden="true">/</span>
+            </form>
+            <button class="iconbtn" id="openNav" aria-label="打开菜单" title="菜单">
+              <span aria-hidden="true" style="font-weight:800; letter-spacing:0.04em;">≡</span>
+            </button>
+            <button class="iconbtn" id="savedBtn" aria-label="查看已保存" title="已保存" aria-pressed="false">
+              <span aria-hidden="true" style="font-weight:800;">★</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main id="content">
+      <div class="wrap">
+        <div class="grid" aria-label="首页两栏布局">
+          <section class="panel flat" aria-label="主内容">
+            <div class="panel" aria-label="头条">
+              <div class="kicker">本期头条 / Featured</div>
+              <div class="hero" style="margin-top:12px;">
+                <div class="hgroup">
+                  <h1 class="headline">示例头条标题：一篇长文如何排版得像杂志一样（占位）</h1>
+                  <p class="dek">这里是导语/摘要占位，强调“结构优先”：标题、导语、元信息、行动按钮与推荐模块清晰分层。</p>
+                  <div class="meta" aria-label="头条元信息">
+                    <span class="badge"><span class="sw" aria-hidden="true" style="background:var(--accent)"></span>专题：编辑精选</span>
+                    <span class="dot" aria-hidden="true"></span>
+                    <span>发布日期：—</span>
+                    <span class="dot" aria-hidden="true"></span>
+                    <span>阅读时长：—</span>
+                  </div>
+                  <div class="ctaRow" aria-label="头条动作">
+                    <button class="btn primary" id="readHero">开始阅读</button>
+                    <button class="btn ghost" id="toggleHeroSummary" aria-pressed="false">展开摘要</button>
+                    <button class="btn" id="saveHero" aria-pressed="false">保存</button>
+                  </div>
+                  <p class="mutedLine" id="heroExtra" hidden>扩展摘要占位：用于测试“展开/收起”在长摘要下的布局表现（移动端也要可读）。</p>
+                </div>
+                <div class="ph" aria-label="头条封面图占位"></div>
+              </div>
+            </div>
+
+            <section class="panel" style="margin-top:18px;" aria-label="文章流">
+              <div class="sectionTitle">
+                <h2>最新文章</h2>
+                <div class="hint">可用搜索 / 分类 / 排序验证信息架构</div>
+              </div>
+
+              <div class="chipRow" role="toolbar" aria-label="分类筛选">
+                <button class="chip" data-filter="all" aria-pressed="true">全部</button>
+                <button class="chip" data-filter="product" aria-pressed="false">产品</button>
+                <button class="chip" data-filter="design" aria-pressed="false">设计</button>
+                <button class="chip" data-filter="engineering" aria-pressed="false">工程</button>
+                <button class="chip" data-filter="culture" aria-pressed="false">文化</button>
+              </div>
+
+              <div class="toolbar" aria-label="排序与视图">
+                <div class="seg" aria-label="列表切换">
+                  <button type="button" id="viewLatest" aria-pressed="true">最新</button>
+                  <button type="button" id="viewPopular" aria-pressed="false">热门</button>
+                </div>
+                <label class="select" aria-label="排序">
+                  排序
+                  <select id="sortBy">
+                    <option value="default">默认</option>
+                    <option value="title">标题（A→Z）</option>
+                    <option value="saved">已保存优先</option>
+                  </select>
+                </label>
+              </div>
+
+              <div class="feed" id="feed" aria-live="polite"></div>
+
+              <div class="ctaRow" style="margin-top:12px;">
+                <button class="btn" id="loadMore">加载更多（占位）</button>
+                <span class="mutedLine" id="feedHint">提示：按 <span style="font-weight:700;">/</span> 聚焦搜索；“保存”用于验证状态与排序。</span>
+              </div>
+            </section>
+          </section>
+
+          <aside class="panel tight" aria-label="侧栏">
+            <section aria-label="编辑精选列表">
+              <div class="sectionTitle">
+                <h2>本周编辑精选</h2>
+                <div class="hint">短列表</div>
+              </div>
+              <div class="list" id="editorsPicks"></div>
+            </section>
+
+            <section style="margin-top:18px;" aria-label="订阅模块">
+              <div class="sectionTitle">
+                <h2>订阅通讯</h2>
+                <div class="hint">表单校验</div>
+              </div>
+              <p class="mutedLine">用邮箱接收本周要点（文案可替换）。</p>
+              <div class="formRow">
+                <div class="field" aria-label="邮箱输入">
+                  <span aria-hidden="true" style="color:var(--muted); font-size:12px;">Email</span>
+                  <input id="email" type="email" placeholder="name@domain.com" inputmode="email" autocomplete="email" />
+                </div>
+                <button class="btn primary" id="subscribe">订阅</button>
+              </div>
+              <p class="mutedLine" id="subHint" style="margin-top:10px;">隐私与退订：占位（可加链接）。</p>
+            </section>
+
+            <section style="margin-top:18px;" aria-label="热门话题">
+              <div class="sectionTitle">
+                <h2>热门话题</h2>
+                <div class="hint">标签云</div>
+              </div>
+              <div class="chipRow" id="topics">
+                <button class="chip" data-topic="writing" aria-pressed="false">写作</button>
+                <button class="chip" data-topic="research" aria-pressed="false">研究</button>
+                <button class="chip" data-topic="systems" aria-pressed="false">系统</button>
+                <button class="chip" data-topic="tools" aria-pressed="false">工具</button>
+              </div>
+              <p class="mutedLine" style="margin-top:10px;">点击话题将其作为关键词加入搜索。</p>
+            </section>
+
+            <section style="margin-top:18px;" aria-label="站点工具">
+              <div class="sectionTitle">
+                <h2>站点工具</h2>
+                <div class="hint">轻量动作</div>
+              </div>
+              <div class="ctaRow">
+                <button class="btn" id="copyRss">复制 RSS 链接</button>
+                <button class="btn" id="openShortcuts">快捷键</button>
+              </div>
+              <p class="mutedLine" style="margin-top:10px;">这是结构线框：后续可替换为真实链接与栏目。</p>
+            </section>
+          </aside>
+        </div>
+      </div>
+    </main>
+
+    <footer role="contentinfo">
+      <div class="wrap">
+        <div class="footGrid">
+          <div>
+            <div class="kicker">Footer</div>
+            <p class="footNote" style="margin:10px 0 0;">
+              线框版说明：本页刻意使用“边框 + 留白”来表达杂志风层级；色彩仅用于焦点与状态。后续若你提供真实栏目/文章样例，我会替换占位标题并优化节奏。
+            </p>
+          </div>
+          <div class="panel tight" aria-label="页脚链接占位">
+            <div class="li"><a href="#">关于我们</a><small>—</small></div>
+            <div class="li"><a href="#">投稿</a><small>—</small></div>
+            <div class="li"><a href="#">隐私</a><small>—</small></div>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <div class="toast" id="toast" role="status" aria-live="polite">
+      <span class="dotStatus" id="toastDot" aria-hidden="true"></span>
+      <span id="toastText">提示</span>
+    </div>
+  </div>
+
+  <dialog id="navDialog" aria-label="移动菜单">
+    <form method="dialog" style="margin:0; padding: 0;">
+      <div style="
+        width:min(560px, 92vw);
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 16px;
+        box-shadow: none;
+      ">
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; padding-bottom:10px; border-bottom:1px solid var(--border);">
+          <div>
+            <div class="kicker">菜单</div>
+            <div style="font-family:var(--font-display); font-size: 20px; letter-spacing:-0.01em;">导航与快捷入口</div>
+          </div>
+          <button class="iconbtn" value="cancel" aria-label="关闭" style="box-shadow:none;">×</button>
+        </div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 10px; padding-top: 12px;">
+          <a class="navlink" href="#" style="border-color:var(--border);">首页</a>
+          <a class="navlink" href="#" style="border-color:var(--border);">专题</a>
+          <a class="navlink" href="#" style="border-color:var(--border);">通讯</a>
+          <a class="navlink" href="#" style="border-color:var(--border);">关于</a>
+        </div>
+        <p class="mutedLine" style="margin:12px 0 0;">移动端：此处是菜单容器，用于验证“粘性头部 + 对话框”结构。</p>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="shortcutsDialog" aria-label="快捷键说明">
+    <form method="dialog" style="margin:0;">
+      <div style="
+        width:min(560px, 92vw);
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 16px;
+        box-shadow: none;
+      ">
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; padding-bottom:10px; border-bottom:1px solid var(--border);">
+          <div>
+            <div class="kicker">快捷键</div>
+            <div style="font-family:var(--font-display); font-size: 20px; letter-spacing:-0.01em;">提高浏览效率</div>
+          </div>
+          <button class="iconbtn" value="cancel" aria-label="关闭" style="box-shadow:none;">×</button>
+        </div>
+        <div style="padding-top:12px; display:grid; gap:10px;">
+          <div class="li"><span>聚焦搜索</span><small><span class="kbd">/</span></small></div>
+          <div class="li"><span>清空筛选</span><small><span class="kbd">Esc</span></small></div>
+          <div class="li"><span>切换：最新/热门</span><small><span class="kbd">G</span></small></div>
+        </div>
+        <p class="mutedLine" style="margin:12px 0 0;">线框交互：用于验证键盘可达性与状态提示。</p>
+      </div>
+    </form>
+  </dialog>
+
+  <script>
+    const state = {
+      filter: "all",
+      view: "latest",
+      sort: "default",
+      q: "",
+      showSavedOnly: false,
+      saved: new Set(),
+      items: [
+        { id:"a1", cat:"product", title:"示例文章标题（占位）：用栏目结构降低读者跳出", excerpt:"摘要占位：这里验证段落长度与摘要折行；真实内容到位后可替换为具体故事或观点。", author:"—", time:"—", popularScore: 90 },
+        { id:"a2", cat:"design", title:"示例文章标题（占位）：排版节奏与留白的“编辑感”", excerpt:"摘要占位：用边框而不是阴影；用标题字号与字重差拉开层级。", author:"—", time:"—", popularScore: 80 },
+        { id:"a3", cat:"engineering", title:"示例文章标题（占位）：为长文阅读做性能与可达性", excerpt:"摘要占位：键盘快捷键、聚焦样式、sticky 头部；这些都是结构线框的核心。", author:"—", time:"—", popularScore: 70 },
+        { id:"a4", cat:"culture", title:"示例文章标题（占位）：杂志风与信息密度的边界", excerpt:"摘要占位：在移动端将侧栏内容折叠进主流，让层级不丢失。", author:"—", time:"—", popularScore: 60 },
+        { id:"a5", cat:"design", title:"示例文章标题（占位）：如何写导语（dek）", excerpt:"摘要占位：导语是一句话把读者带进文章的方法；这里仅用于布局验证。", author:"—", time:"—", popularScore: 50 }
+      ]
+    };
+
+    const $ = (sel, root=document) => root.querySelector(sel);
+    const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
+
+    function toast(message, kind="info"){
+      const el = $("#toast");
+      const dot = $("#toastDot");
+      $("#toastText").textContent = message;
+      dot.className = "dotStatus " + (kind==="ok"?"ok":kind==="warn"?"warn":kind==="bad"?"bad":"");
+      el.classList.add("show");
+      clearTimeout(toast._t);
+      toast._t = setTimeout(() => el.classList.remove("show"), 2200);
+    }
+
+    function normalize(s){ return (s||"").toLowerCase().trim(); }
+
+    function computeList(){
+      const q = normalize(state.q);
+      let items = state.items.slice();
+      if (state.filter !== "all") items = items.filter(i => i.cat === state.filter);
+      if (q) items = items.filter(i => normalize(i.title + " " + i.excerpt).includes(q));
+      if (state.showSavedOnly) items = items.filter(i => state.saved.has(i.id));
+
+      if (state.view === "popular") {
+        items.sort((a,b) => (b.popularScore||0) - (a.popularScore||0));
+      }
+      if (state.sort === "title") {
+        items.sort((a,b) => a.title.localeCompare(b.title, "zh-Hans-CN"));
+      }
+      if (state.sort === "saved") {
+        items.sort((a,b) => (state.saved.has(b.id) - state.saved.has(a.id)));
+      }
+      return items;
+    }
+
+    function render(){
+      const feed = $("#feed");
+      const items = computeList();
+      feed.innerHTML = "";
+
+      if (!items.length){
+        const empty = document.createElement("div");
+        empty.className = "panel";
+        empty.innerHTML = `
+          <div class="kicker">无结果</div>
+          <div style="font-family:var(--font-display); font-size: 22px; letter-spacing:-0.01em; margin-top:8px;">没有匹配的文章（线框状态）</div>
+          <p class="mutedLine" style="margin-top:8px;">试试清空筛选或更换关键词。</p>
+          <div class="ctaRow" style="margin-top:10px;">
+            <button class="btn" id="clearAll">清空筛选</button>
+          </div>
+        `;
+        feed.appendChild(empty);
+        $("#clearAll").onclick = () => {
+          state.q = ""; $("#q").value = "";
+          state.filter = "all"; setChip("all");
+          state.showSavedOnly = false; $("#savedBtn").setAttribute("aria-pressed","false");
+          state.view = "latest"; setView("latest");
+          state.sort = "default"; $("#sortBy").value = "default";
+          toast("已清空筛选", "ok");
+          render();
+        };
+        return;
+      }
+
+      for (const item of items){
+        const card = document.createElement("article");
+        card.className = "card";
+        card.setAttribute("data-cat", item.cat);
+        card.setAttribute("data-id", item.id);
+        const saved = state.saved.has(item.id);
+        card.innerHTML = `
+          <div class="thumb" aria-label="文章缩略图占位"></div>
+          <div>
+            <h3><a href="#" data-open="${item.id}" style="text-decoration:none;">${escapeHtml(item.title)}</a></h3>
+            <p class="excerpt">${escapeHtml(item.excerpt)}</p>
+            <div class="row">
+              <div class="leftMeta">
+                <span class="badge" title="分类"><span class="sw" aria-hidden="true" style="background:${catColor(item.cat)}"></span>${catLabel(item.cat)}</span>
+                <span class="dot" aria-hidden="true"></span>
+                <span>作者：${escapeHtml(item.author)}</span>
+                <span class="dot" aria-hidden="true"></span>
+                <span>日期：${escapeHtml(item.time)}</span>
+              </div>
+              <div class="actions">
+                <button class="mini save" data-save="${item.id}" aria-pressed="${saved}">${saved ? "已保存" : "保存"}</button>
+                <button class="mini" data-copy="${item.id}">复制链接</button>
+              </div>
+            </div>
+          </div>
+        `;
+        feed.appendChild(card);
+      }
+
+      $$("[data-save]").forEach(btn => {
+        btn.onclick = () => {
+          const id = btn.getAttribute("data-save");
+          toggleSaved(id);
+          render();
+        };
+      });
+      $$("[data-copy]").forEach(btn => {
+        btn.onclick = async () => {
+          await copyText("https://example.com/post/" + btn.getAttribute("data-copy"));
+          toast("已复制链接（占位）", "ok");
+        };
+      });
+      $$("[data-open]").forEach(a => {
+        a.onclick = (e) => {
+          e.preventDefault();
+          toast("打开文章详情（此版仅做首页线框）", "info");
+        };
+      });
+    }
+
+    function escapeHtml(s){
+      return (s||"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;");
+    }
+
+    function catLabel(cat){
+      return ({product:"产品", design:"设计", engineering:"工程", culture:"文化"}[cat] || "其他");
+    }
+    function catColor(cat){
+      return "var(--border)";
+    }
+
+    function setChip(filter){
+      $$("[data-filter]").forEach(b => b.setAttribute("aria-pressed", String(b.getAttribute("data-filter") === filter)));
+    }
+
+    function setView(view){
+      $("#viewLatest").setAttribute("aria-pressed", String(view==="latest"));
+      $("#viewPopular").setAttribute("aria-pressed", String(view==="popular"));
+    }
+
+    function toggleSaved(id){
+      if (state.saved.has(id)){
+        state.saved.delete(id);
+        toast("已取消保存", "warn");
+      } else {
+        state.saved.add(id);
+        toast("已保存", "ok");
+      }
+      $("#savedBtn").setAttribute("aria-pressed", String(state.showSavedOnly));
+    }
+
+    async function copyText(text){
+      try{
+        await navigator.clipboard.writeText(text);
+      }catch{
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        ta.remove();
+      }
+    }
+
+    function renderEditorsPicks(){
+      const el = $("#editorsPicks");
+      const picks = [
+        { t:"短标题占位：一段引言如何放在侧栏", s:"—" },
+        { t:"短标题占位：栏目导航的最佳密度", s:"—" },
+        { t:"短标题占位：收藏与阅读列表的关系", s:"—" }
+      ];
+      el.innerHTML = picks.map(p => `
+        <div class="li">
+          <a href="#" data-open="pick">${escapeHtml(p.t)}</a>
+          <small>${escapeHtml(p.s)}</small>
+        </div>
+      `).join("");
+      $$("[data-open='pick']", el).forEach(a => a.onclick = (e) => { e.preventDefault(); toast("打开精选文章（占位）"); });
+    }
+
+    function wireHeaderActions(){
+      const navDialog = $("#navDialog");
+      $("#openNav").onclick = () => navDialog.showModal();
+
+      const shortcuts = $("#shortcutsDialog");
+      $("#openShortcuts").onclick = () => shortcuts.showModal();
+
+      $("#savedBtn").onclick = () => {
+        state.showSavedOnly = !state.showSavedOnly;
+        $("#savedBtn").setAttribute("aria-pressed", String(state.showSavedOnly));
+        toast(state.showSavedOnly ? "只看已保存" : "显示全部", "info");
+        render();
+      };
+
+      $("#readHero").onclick = () => toast("进入头条文章（此版仅结构演示）", "info");
+
+      $("#saveHero").onclick = () => {
+        const pressed = $("#saveHero").getAttribute("aria-pressed") === "true";
+        $("#saveHero").setAttribute("aria-pressed", String(!pressed));
+        toast(!pressed ? "已保存头条" : "取消保存头条", !pressed ? "ok" : "warn");
+      };
+
+      $("#toggleHeroSummary").onclick = () => {
+        const pressed = $("#toggleHeroSummary").getAttribute("aria-pressed") === "true";
+        $("#toggleHeroSummary").setAttribute("aria-pressed", String(!pressed));
+        $("#heroExtra").hidden = pressed;
+        $("#toggleHeroSummary").textContent = pressed ? "展开摘要" : "收起摘要";
+      };
+
+      $("#copyRss").onclick = async () => {
+        await copyText("https://example.com/rss.xml");
+        toast("RSS 链接已复制（占位）", "ok");
+      };
+    }
+
+    function wireFilters(){
+      $$("[data-filter]").forEach(btn => {
+        btn.onclick = () => {
+          state.filter = btn.getAttribute("data-filter");
+          setChip(state.filter);
+          toast("分类筛选：" + (state.filter==="all" ? "全部" : catLabel(state.filter)), "info");
+          render();
+        };
+      });
+
+      $("#viewLatest").onclick = () => { state.view = "latest"; setView("latest"); toast("视图：最新"); render(); };
+      $("#viewPopular").onclick = () => { state.view = "popular"; setView("popular"); toast("视图：热门"); render(); };
+
+      $("#sortBy").onchange = (e) => { state.sort = e.target.value; toast("排序已更新"); render(); };
+
+      $("#q").addEventListener("input", (e) => {
+        state.q = e.target.value;
+        render();
+      });
+
+      $("#searchForm").addEventListener("submit", (e) => e.preventDefault());
+
+      $("#loadMore").onclick = () => toast("加载更多：待接入真实分页", "warn");
+
+      $$("[data-topic]").forEach(btn => {
+        btn.onclick = () => {
+          const t = btn.getAttribute("data-topic");
+          const map = { writing:"写作", research:"研究", systems:"系统", tools:"工具" };
+          const word = map[t] || t;
+          const q = $("#q");
+          const current = q.value.trim();
+          q.value = current ? (current + " " + word) : word;
+          state.q = q.value;
+          toast("已加入关键词：" + word, "ok");
+          render();
+        };
+      });
+    }
+
+    function wireSubscribe(){
+      $("#subscribe").onclick = () => {
+        const email = $("#email").value.trim();
+        if (!email){
+          toast("请输入邮箱", "warn");
+          $("#email").focus();
+          return;
+        }
+        if (!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)){
+          toast("邮箱格式不正确", "bad");
+          $("#email").focus();
+          return;
+        }
+        toast("订阅成功（线框占位）", "ok");
+        $("#email").value = "";
+      };
+    }
+
+    function wireShortcuts(){
+      window.addEventListener("keydown", (e) => {
+        if (e.key === "/"){
+          const t = e.target;
+          const isInput = t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable);
+          if (!isInput){
+            e.preventDefault();
+            $("#q").focus();
+            toast("搜索已聚焦", "info");
+          }
+        }
+        if (e.key === "Escape"){
+          if ($("#navDialog").open) $("#navDialog").close();
+          if ($("#shortcutsDialog").open) $("#shortcutsDialog").close();
+          // Esc also clears filters if not typing
+          const t = e.target;
+          const isInput = t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable);
+          if (!isInput){
+            state.q = ""; $("#q").value = "";
+            state.filter = "all"; setChip("all");
+            state.showSavedOnly = false; $("#savedBtn").setAttribute("aria-pressed","false");
+            state.view = "latest"; setView("latest");
+            state.sort = "default"; $("#sortBy").value = "default";
+            toast("已清空筛选（Esc）", "ok");
+            render();
+          }
+        }
+        if (e.key.toLowerCase() === "g"){
+          const t = e.target;
+          const isInput = t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable);
+          if (!isInput){
+            state.view = (state.view === "latest") ? "popular" : "latest";
+            setView(state.view);
+            toast("切换视图：" + (state.view === "latest" ? "最新" : "热门"), "info");
+            render();
+          }
+        }
+      });
+    }
+
+    function boot(){
+      renderEditorsPicks();
+      wireHeaderActions();
+      wireFilters();
+      wireSubscribe();
+      wireShortcuts();
+      render();
+    }
+    boot();
+  </script>
+</body>
+</html>
